@@ -1,0 +1,3189 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ذكرى صداقتنا A&N</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #fff0f5;
+            /* خلفية بينك هادية جداً */
+            font-family: 'Cairo', sans-serif;
+            overflow: hidden;
+            /* هنخلي السكرول جوه البوابة بس */
+            height: 100vh;
+        }
+
+        /* --- خلفية القلوب المتحركة --- */
+        #canvas-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        /* --- تأثير القلوب عند الضغط --- */
+        .floating-heart-click {
+            position: fixed;
+            pointer-events: none;
+            font-size: 24px;
+            z-index: 9999;
+            animation: floatUpFadeClick 1.5s forwards ease-out;
+        }
+
+        @keyframes floatUpFadeClick {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(-50%, -150px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* --- 1. شاشة البوابة الأساسية (الدخول) --- */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 1s ease, transform 1s ease;
+            background-color: rgba(255, 240, 245, 0.7);
+            /* بلور خفيف ورا الكارت */
+            backdrop-filter: blur(5px);
+        }
+
+        .gateway-card {
+            background: #ffffff;
+            width: 90%;
+            max-width: 450px;
+            padding: 50px 30px;
+            border-radius: 25px;
+            text-align: center;
+            border: 2px solid rgba(255, 77, 109, 0.2);
+            box-shadow: 0 0 20px rgba(255, 77, 109, 0.2);
+            animation: cardPulseGlow 3s infinite alternate ease-in-out;
+            position: relative;
+        }
+
+        @keyframes cardPulseGlow {
+            0% {
+                box-shadow: 0 10px 30px rgba(255, 77, 109, 0.2);
+            }
+
+            100% {
+                box-shadow: 0 15px 50px rgba(255, 77, 109, 0.5);
+            }
+        }
+
+        .gateway-card h2 {
+            color: #ff4d6d;
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 5px rgba(255, 77, 109, 0.2);
+        }
+
+        .gateway-card input {
+            width: 85%;
+            padding: 15px;
+            margin-bottom: 25px;
+            background: #ffe4e1;
+            border: 1px solid #ff4d6d;
+            color: #ff4d6d;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 12px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .gateway-card input:focus {
+            background: #ffffff;
+            box-shadow: 0 0 15px rgba(255, 77, 109, 0.4);
+        }
+
+        .gateway-card input::placeholder {
+            color: #ff8fa3;
+            font-weight: normal;
+        }
+
+        .btn-style {
+            background: linear-gradient(45deg, #ff4d6d, #ff758c);
+            color: #fff;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
+        }
+
+        .btn-style:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 25px rgba(255, 77, 109, 0.6);
+        }
+
+        .gateway-card button {
+            animation: buttonPulse 2s infinite;
+        }
+
+        @keyframes buttonPulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(255, 77, 109, 0.6);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
+            }
+        }
+
+        #error-msg {
+            color: #d90429;
+            margin-top: 20px;
+            display: none;
+            font-size: 16px;
+            font-weight: bold;
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+        }
+
+        /* --- 2. شاشة الكروت التلاتة (الداشبورد) --- */
+        #main-hub {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            /* مخفية في البداية */
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            overflow-y: auto;
+            /* عشان لو الشاشة صغيرة الموبايل يعمل سكرول للكروت */
+            z-index: 1500;
+        }
+
+        .hub-title {
+            color: #ff4d6d;
+            font-size: 1.6rem;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 5px rgba(255, 77, 109, 0.2);
+            line-height: 1.5;
+            animation: fadeInDown 1s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hub-cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            width: 100%;
+            max-width: 450px;
+            padding-bottom: 50px;
+        }
+
+        .hub-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(255, 77, 109, 0.15);
+            border: 2px solid rgba(255, 77, 109, 0.1);
+            transition: 0.3s;
+            animation: fadeInUp 0.8s ease backwards;
+        }
+
+        .hub-card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .hub-card:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .hub-card:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hub-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(255, 77, 109, 0.3);
+            border-color: rgba(255, 77, 109, 0.4);
+        }
+
+        .hub-card h3 {
+            color: #ff4d6d;
+            margin-bottom: 25px;
+            font-size: 1.4rem;
+        }
+
+        /* كارت العداد */
+        .timer-card {
+            background: linear-gradient(135deg, #ffffff, #fff0f5);
+        }
+
+        .timer-large {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ff4d6d;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .timer-small {
+            font-size: 1.1rem;
+            color: #ff758c;
+            font-weight: bold;
+        }
+
+        /* --- 3. الكتاب التفاعلي (3D Book) --- */
+        #book-scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            /* مخفي في البداية عشان ميظهرش مع الكروت */
+            justify-content: center;
+            align-items: center;
+            z-index: 1600;
+            perspective: 1500px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            color: #ff4d6d;
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #ff4d6d;
+            z-index: 1700;
+        }
+
+        .book {
+            width: 90%;
+            max-width: 400px;
+            height: 75vh;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        /* تصميم الصفحات الأساسي */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: right center;
+            /* مفصلة الكتاب ع اليمين عشان العربي */
+            transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.8s 0.3s;
+            transform-style: preserve-3d;
+            border-radius: 10px 0 0 10px;
+            box-shadow: inset -5px 0 15px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.2);
+            background: #fffcfd;
+        }
+
+        .page.flipped {
+            transform: rotateY(180deg);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* الغلاف */
+        .cover {
+            background: linear-gradient(135deg, #d81b60, #ff4d6d);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            border: 2px solid #a01a35;
+        }
+
+        .cover h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            margin-bottom: 40px;
+            border-bottom: 2px solid white;
+            padding-bottom: 10px;
+        }
+
+        /* محتوى الصفحة الداخلية */
+        .page-content {
+            padding: 20px;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 77, 109, 0.1);
+            margin: 5px;
+            border-radius: 8px 0 0 8px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: center;
+            /* لتوسيط العنوان في النص */
+            align-items: center;
+            border-bottom: 2px dashed #ffb3c1;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .page-header h2 {
+            color: #ff4d6d;
+            font-size: 1.5rem;
+        }
+
+        .flip-btn {
+            background: #ffe4e1;
+            color: #ff4d6d;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* البولارويد والمشابك */
+        .polaroids-area {
+            position: relative;
+            flex-grow: 1;
+        }
+
+        .polaroid {
+            position: absolute;
+            background: white;
+            padding: 8px;
+            padding-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+
+        .clip {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 25px;
+            background: linear-gradient(to bottom, #d3d3d3, #a9a9a9);
+            border-radius: 6px;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+            border: 1px solid #888;
+            z-index: 5;
+        }
+
+        /* --- توزيع الصور الجديد (عشان ميبقوش لازقين في بعض) --- */
+        .polaroids-area {
+            position: relative;
+            flex-grow: 1;
+            margin: 10px 0;
+        }
+
+        /* --- تثبيت الفوتر والزراير تحت خالص والخط المنقط فوقهم --- */
+        .page-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            /* ده السحر اللي هيثبتهم تحت غصب عنهم */
+            bottom: 15px;
+            left: 20px;
+            right: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #ffb3c1;
+            /* الخط المنقط اللي تحت */
+        }
+
+        /* --- توزيع الـ 4 كروت (رفعناهم لفوق وصغرناهم سيكا عشان ميبقوش على الخط المنقط) --- */
+        .p1 {
+            top: 10px;
+            right: 15px;
+            width: 95px;
+            height: 115px;
+            transform: rotate(-6deg);
+            z-index: 2;
+        }
+
+        .p2 {
+            top: 35px;
+            left: 15px;
+            width: 95px;
+            height: 115px;
+            transform: rotate(8deg);
+            z-index: 1;
+        }
+
+        .p3 {
+            bottom: 130px;
+            right: 20px;
+            width: 95px;
+            height: 115px;
+            transform: rotate(-4deg);
+            z-index: 3;
+        }
+
+        .p4 {
+            bottom: 115px;
+            left: 25px;
+            width: 95px;
+            height: 115px;
+            transform: rotate(5deg);
+            z-index: 4;
+        }
+
+        /* تنسيق الإيموجي جوه الكارت الرابع */
+        .emoji-placeholder {
+            font-size: 3.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            background-color: #fff5f7;
+            border-radius: 3px;
+            border: 1px dashed #ffb3c1;
+        }
+
+        /* تنسيق الإيموجي جوه الكارت الرابع */
+        .emoji-placeholder {
+            font-size: 3.5rem;
+            /* كبرنا الإيموجي عشان ينطق الكارت */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            background-color: #fff5f7;
+            border-radius: 3px;
+            border: 1px dashed #ffb3c1;
+        }
+
+        /* تنسيق الإيموجي جوه الكارت الرابع */
+        .emoji-placeholder {
+            font-size: 2.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            background-color: #fff5f7;
+            /* خلفية بينك هادية مكان الصورة */
+            border-radius: 3px;
+            border: 1px dashed #ffb3c1;
+        }
+
+        /* --- زراير التقليب ورقم السنة (الفوتر تحت) --- */
+        .page-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 2px dashed #ffb3c1;
+        }
+
+        .flip-btn {
+            background: #ffe4e1;
+            color: #ff4d6d;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            /* خليناها مدورة شكلها أشيك */
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(255, 77, 109, 0.2);
+            transition: 0.3s;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .flip-btn:hover {
+            transform: scale(1.1);
+            background: #ff4d6d;
+            color: white;
+        }
+
+        .year-door {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #ff4d6d;
+            text-shadow: 0 5px 15px rgba(255, 77, 109, 0.3);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .year-door:hover {
+            transform: scale(1.1);
+            color: #d90429;
+        }
+
+        .year-door.locked {
+            color: #b0b0b0;
+            text-shadow: none;
+        }
+
+        /* الخياطة على الغلاف فقط */
+        .cover .spiral-binding {
+            position: absolute;
+            top: 15px;
+            bottom: 15px;
+            right: 15px;
+            width: 0;
+            border-left: 4px dashed #8c0027;
+            box-shadow: -2px 0 3px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+        }
+
+        /* --- تعديل خط الختم عشان يكفي A&N --- */
+        .wax-seal span {
+            color: #ffcccc;
+            font-size: 2.2rem;
+            /* صغرنا الخط شوية عن الأول */
+            font-family: serif;
+            font-weight: bold;
+            text-shadow: -1px -1px 2px #5a001a, 1px 1px 2px #ff6b81;
+        }
+
+        /* --- الختم الشمعي (Wax Seal) للغلاف --- */
+        .wax-seal {
+            width: 90px;
+            height: 90px;
+            background: radial-gradient(circle, #b71540, #8c0027);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.3s;
+            box-shadow: inset 0 0 10px #5a001a, 0 5px 15px rgba(0, 0, 0, 0.4), 0 0 5px #b71540;
+            border: 2px solid #5a001a;
+            margin-top: 20px;
+        }
+
+        .wax-seal:hover {
+            transform: scale(1.1);
+        }
+
+        .wax-seal span {
+            color: #ffcccc;
+            font-size: 3rem;
+            font-family: serif;
+            font-weight: bold;
+            text-shadow: -1px -1px 2px #5a001a, 1px 1px 2px #ff6b81;
+        }
+
+        .back-to-main {
+            margin-top: 25px;
+            /* مسافة تحت الكتاب */
+            background: linear-gradient(45deg, #ff4d6d, #ff758c);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(255, 77, 109, 0.3);
+            transition: 0.3s;
+        }
+
+        .back-to-main:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(255, 77, 109, 0.5);
+        }
+
+        /* --- تخصيص منطقة السكرول (Scroll Area) جوه الصفحات --- */
+        .scroll-area {
+            flex-grow: 1;
+            /* عشان تاخد المساحة الفاضية كلها بين العنوان والزراير */
+            overflow-y: auto;
+            /* تشغيل السكرول العمودي */
+            overflow-x: hidden;
+            padding: 0 10px;
+            /* مسافة بسيطة من الجناب عشان الكلام ميمسحش في السلك */
+            margin-bottom: 85px;
+        }
+
+        /* شكل السكرول بار نفسه (تصميم شيك ومصغر) */
+        .scroll-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scroll-area::-webkit-scrollbar-track {
+            background: #ffe4e1;
+            /* لون التراك البينك الفاتح */
+            border-radius: 10px;
+        }
+
+        .scroll-area::-webkit-scrollbar-thumb {
+            background: #ff4d6d;
+            /* لون السكرول نفسه أحمر/بينك */
+            border-radius: 10px;
+        }
+
+        .scroll-area::-webkit-scrollbar-thumb:hover {
+            background: #d90429;
+        }
+
+        /* --- تظبيط الصور جوه مشبك البولارويد --- */
+        .polaroid {
+            padding: 8px;
+            padding-bottom: 25px;
+            /* مساحة بيضا تحت زي البولارويد الحقيقي */
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .polaroid:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+            z-index: 10 !important;
+            /* عشان لما تقف عليها تطلع فوق الباقي */
+        }
+
+        .polaroid img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 3px;
+            pointer-events: none;
+        }
+
+        /* --- نظام الـ Lightbox (الشاشة اللي بتكبر الصورة) --- */
+        #lightbox-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            /* خلفية غامقة شيك */
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 3000;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .lightbox-content {
+            background: #fffcfd;
+            padding: 20px;
+            padding-bottom: 25px;
+            border-radius: 15px;
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
+            max-height: 90vh;
+            transform: scale(0.7);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* أنيميشن فرقعة ناعم */
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid #ffb3c1;
+        }
+
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 45vh;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            object-fit: contain;
+        }
+
+        /* سكرول صغير للكلام لو كان طويل */
+        .lightbox-caption {
+            margin-top: 15px;
+            color: #ff4d6d;
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1.6;
+            width: 100%;
+            overflow-y: auto;
+            max-height: 20vh;
+            padding: 0 10px;
+        }
+
+        .lightbox-caption::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .lightbox-caption::-webkit-scrollbar-thumb {
+            background: #ff4d6d;
+            border-radius: 10px;
+        }
+
+        .close-lightbox {
+            margin-top: 15px;
+            background: linear-gradient(45deg, #ff4d6d, #ff758c);
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(255, 77, 109, 0.3);
+            transition: 0.3s;
+        }
+
+        .close-lightbox:hover {
+            transform: scale(1.05);
+        }
+
+        /* --- توزيع صور 2027 --- */
+        .p5 {
+            top: 15px;
+            right: 15px;
+            width: 90px;
+            height: 110px;
+            transform: rotate(-6deg);
+            z-index: 2;
+        }
+
+        .p6 {
+            top: 25px;
+            left: 15px;
+            width: 90px;
+            height: 110px;
+            transform: rotate(8deg);
+            z-index: 1;
+        }
+
+        .p7 {
+            top: 170px;
+            right: 25px;
+            width: 90px;
+            height: 110px;
+            transform: rotate(-4deg);
+            z-index: 3;
+        }
+
+        .p8 {
+            top: 180px;
+            left: 25px;
+            width: 90px;
+            height: 110px;
+            transform: rotate(5deg);
+            z-index: 4;
+        }
+
+        /* --- زرار الاسكرينات --- */
+        .screenshots-trigger {
+            position: absolute;
+            bottom: 170px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffe4e1;
+            color: #ff4d6d;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(255, 77, 109, 0.2);
+            border: 1px dashed #ff4d6d;
+            z-index: 10;
+            transition: 0.3s;
+        }
+
+        .screenshots-trigger:hover {
+            background: #ff4d6d;
+            color: white;
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        /* --- تنسيق عداد المكالمات --- */
+        .call-stats-container {
+            position: absolute;
+            bottom: 80px;
+            left: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #fffcfd, #ffe4e1);
+            border: 2px dashed #ffb3c1;
+            border-radius: 15px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.15);
+            z-index: 10;
+        }
+
+        .stats-title {
+            color: #d81b60;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .stats-numbers {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            color: #ff4d6d;
+            font-weight: 900;
+            font-size: 1.4rem;
+            direction: ltr;
+        }
+
+        .num-box {
+            background: white;
+            padding: 5px 8px;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(255, 77, 109, 0.1);
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+            min-width: 50px;
+        }
+
+        .num-box small {
+            font-size: 0.7rem;
+            color: #ff8fa3;
+            margin-top: 2px;
+            font-weight: normal;
+        }
+
+        /* ================= تنسيقات شاشة السلايدر (تقليب الاسكرينات) ================= */
+        #screenshots-slider-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .slider-content {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .slider-image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        #slider-main-img {
+            max-width: 75%;
+            max-height: 70vh;
+            border-radius: 15px;
+            border: 3px solid #ff4d6d;
+            box-shadow: 0 0 20px rgba(255, 77, 109, 0.5);
+        }
+
+        .slider-btn {
+            background: #ff4d6d;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .slider-btn:hover {
+            background: #d81b60;
+            transform: scale(1.1);
+        }
+
+        .close-slider {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: white;
+            color: #ff4d6d;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-caption {
+            color: white;
+            font-size: 1.2rem;
+            margin-top: 10px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .slider-counter {
+            color: #ffb3c1;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* ================= تنسيقات لعبة البلالين ================= */
+        .balloon {
+            position: absolute;
+            bottom: -120px;
+            width: 70px;
+            height: 90px;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            cursor: pointer;
+            box-shadow: inset -10px -10px 15px rgba(0, 0, 0, 0.1);
+            z-index: 15;
+            animation: floatUp linear forwards;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* عقدة البلونة من تحت */
+        .balloon::before {
+            content: "▲";
+            font-size: 20px;
+            color: inherit;
+            position: absolute;
+            bottom: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* خيط البلونة */
+        .balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            width: 2px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        /* حركة الطيران لفوق */
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(-5deg);
+            }
+
+            50% {
+                transform: translateY(-60vh) rotate(5deg);
+            }
+
+            100% {
+                transform: translateY(-120vh) rotate(-5deg);
+            }
+        }
+
+        /* تأثير الفرقعة */
+        .pop-effect {
+            transform: scale(1.5);
+            opacity: 0;
+            transition: all 0.15s ease-out;
+        }
+
+        /* شكل التورتة لما تظهر في الآخر */
+        .birthday-cake-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            z-index: 20;
+            animation: popIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* شكل وحركة الجملة اللي بتظهر لما البلونة تفرقع */
+        .floating-phrase {
+            position: absolute;
+            color: #d81b60;
+            font-weight: bold;
+            font-size: 1.4rem;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.9);
+            pointer-events: none;
+            /* عشان ميعوقش الدوس على بلونة تانية */
+            z-index: 2600;
+            transform: translate(-50%, 0);
+            transition: all 2s ease-out;
+            /* بطأنا اختفاءها عشان تلحق تقرأها */
+        }
+
+        /* ================= تنسيقات شاشة النجوم والتورتة ================= */
+        .star-slot {
+            font-size: 2.5rem;
+            filter: grayscale(100%) opacity(0.2);
+            /* النجوم مطفية وبهتانة في البداية */
+            transition: filter 0.5s ease, transform 0.5s ease;
+        }
+
+        .star-slot.lit {
+            filter: grayscale(0%) opacity(1) drop-shadow(0 0 15px gold);
+            /* لما تنور */
+            transform: scale(1.2);
+        }
+
+        /* النجمة اللي بتطير من البلونة لفوق */
+        .flying-star {
+            position: absolute;
+            font-size: 2.5rem;
+            pointer-events: none;
+            z-index: 2600;
+            filter: drop-shadow(0 0 15px gold);
+            transition: all 1s ease-in-out;
+            /* سرعة طيران النجمة للشريط */
+        }
+
+        /* ================= الشمعتين (رقم 21) ================= */
+        .real-flame {
+            position: absolute;
+            width: 16px;
+            height: 35px;
+            background: linear-gradient(to top, #ff9d00 0%, #ffed4a 50%, #fff 100%);
+            border-radius: 50% 50% 20% 20% / 60% 60% 40% 40%;
+            box-shadow: 0 0 15px #ff9d00, 0 0 30px #ffed4a, 0 0 45px #ffed4a;
+            animation: flicker 0.12s infinite alternate;
+            transition: all 0.5s ease;
+            z-index: 10;
+            cursor: pointer;
+            /* شكل الإيد */
+        }
+
+        /* تكبير مساحة الضغط المخفية عشان الموبايل */
+        .real-flame::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            bottom: -20px;
+            left: -20px;
+            right: -20px;
+        }
+
+        /* مكان الشمعة اللي على رقم 2 (شمال) */
+        .flame-left {
+            top: 180px;
+            left: calc(61% - 25px);
+            /* بنحركها شمال عن النص */
+            transform: translateX(-50%);
+        }
+
+        /* مكان الشمعة اللي على رقم 1 (يمين) */
+        .flame-right {
+            top: 180px;
+            left: calc(62% + 20px);
+            /* بنحركها يمين عن النص */
+            transform: translateX(-50%);
+            animation-delay: 0.1s;
+            /* عشان ميرتعشوش مع بعض بالظبط */
+        }
+
+        @keyframes flicker {
+            0% {
+                transform: translateX(-50%) scale(1) rotate(-2deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateX(-50%) scale(1.05) rotate(2deg);
+                opacity: 0.85;
+            }
+        }
+
+        .flame-out {
+            opacity: 0 !important;
+            transform: translateX(-50%) scale(0) translateY(-20px) !important;
+            box-shadow: none !important;
+        }
+
+        .interactive-cake:active img {
+            transform: scale(0.95);
+            /* التورتة تنزل لتحت سيكا لما تدوس عليها */
+        }
+
+        /* حركة اهتزاز صندوق الهدية */
+        @keyframes shakeBox {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            20% {
+                transform: rotate(-10deg) scale(1.1);
+            }
+
+            40% {
+                transform: rotate(10deg) scale(1.1);
+            }
+
+            60% {
+                transform: rotate(-10deg) scale(1.1);
+            }
+
+            80% {
+                transform: rotate(10deg) scale(1.1);
+            }
+        }
+
+        /* شكل النجمة السحرية المضيئة وهي بتطير */
+        .magical-spark {
+            background: #fff !important;
+            box-shadow: 0 0 20px 10px #fff, 0 0 40px 20px #ffed4a, 0 0 60px 30px #ff9d00 !important;
+            border-radius: 50% !important;
+            width: 25px !important;
+            height: 25px !important;
+            animation: none !important;
+            /* نوقف رعشة النار */
+        }
+
+        /* ================= تصميم الظرف التفاعلي (بيفتح باللمس) ================= */
+        .envelope-wrapper {
+            position: relative;
+            background-color: #881337;
+            /* لون أحمر غامق فخم للظرف */
+            width: 320px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.7s ease;
+            border-radius: 5px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* الجواب الأبيض اللي جوه */
+        .envelope-letter {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        /* الأكشن: لما تلمس الظرف (hover للكمبيوتر و active للموبايل) الجواب يطلع لفوق */
+        .envelope-wrapper:active .envelope-letter,
+        .envelope-wrapper:hover .envelope-letter {
+            transform: translateY(-70px);
+            transition-duration: 1s;
+        }
+
+        /* الختم الشمعي */
+        .envelope-seal {
+            position: absolute;
+            background-color: #f43f5e;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            z-index: 40;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid #4c0519;
+            transition: all 1s ease;
+            clip-path: polygon(50% 0%, 80% 10%, 100% 35%, 100% 70%, 80% 90%, 50% 100%, 20% 90%, 0% 70%, 0% 35%, 20% 10%);
+        }
+
+        /* الختم يختفي ويلف لما الظرف يفتح */
+        .envelope-wrapper:active .envelope-seal,
+        .envelope-wrapper:hover .envelope-seal {
+            opacity: 0;
+            transform: scale(0) rotate(180deg);
+        }
+
+        /* مثلثات الظرف المقفول */
+        .flap {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: all 0.7s ease;
+            border-radius: 5px;
+        }
+
+        .top-flap {
+            background-color: #9f1239;
+            clip-path: polygon(50% 50%, 100% 0, 0 0);
+            z-index: 30;
+        }
+
+        /* المثلث اللي فوق يختفي عشان الجواب يطلع */
+        .envelope-wrapper:active .top-flap,
+        .envelope-wrapper:hover .top-flap {
+            clip-path: polygon(50% 0%, 100% 0, 0 0);
+            transition-duration: 0.1s;
+        }
+
+        .left-flap {
+            background-color: #881337;
+            clip-path: polygon(50% 50%, 0 0, 0 100%);
+            z-index: 20;
+        }
+
+        .right-flap {
+            background-color: #9f1239;
+            clip-path: polygon(50% 50%, 100% 0, 100% 100%);
+            z-index: 20;
+        }
+
+        .bottom-flap {
+            background-color: #700f2d;
+            clip-path: polygon(50% 50%, 100% 100%, 0 100%);
+            z-index: 20;
+        }
+
+        /* ================= تصميم التلفزيون الكيوت ================= */
+        .retro-tv-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: scale(1.35);
+            margin-top: -115px;
+            /* التعديل هنا: رفعناه لفوق خالص عشان نفضي مساحة للريموت تحت */
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 2em;
+        }
+
+        .antenna {
+            width: 5em;
+            height: 5em;
+            border-radius: 50%;
+            border: 2px solid #881337;
+            background-color: #ffb3c1;
+            margin-bottom: -6em;
+            z-index: -1;
+        }
+
+        .a1 {
+            position: relative;
+            top: -82%;
+            left: -88%;
+            /* التعديل هنا: جبناها يمين عشان تركب على القاعدة */
+            width: 12em;
+            height: 5.5em;
+            border-radius: 50px;
+            background-image: linear-gradient(#d81b60, #ff4d6d, #d81b60);
+            transform: rotate(-29deg);
+            clip-path: polygon(50% 0%, 49% 100%, 52% 100%);
+        }
+
+        .a2 {
+            position: relative;
+            top: -184%;
+            left: 21%;
+            /* التعديل هنا: جبناها يمين عشان تركب على القاعدة */
+            width: 12em;
+            height: 4em;
+            border-radius: 50px;
+            background-image: linear-gradient(#d81b60, #ff4d6d, #d81b60);
+            clip-path: polygon(47% 0, 34% 34%, 54% 25%, 32% 100%, 29% 96%, 49% 32%, 30% 38%);
+            transform: rotate(-8deg);
+        }
+
+        .tv {
+            width: 17em;
+            height: 9em;
+            margin-top: 3em;
+            border-radius: 15px;
+            background-color: #ffb3c1;
+            display: flex;
+            justify-content: center;
+            border: 3px solid #881337;
+            box-shadow: inset 0.2em 0.2em #ffebf0, 0 10px 25px rgba(255, 77, 109, 0.4);
+        }
+
+        .display_div {
+            display: flex;
+            align-items: center;
+            align-self: center;
+            justify-content: center;
+            border-radius: 15px;
+            box-shadow: 3.5px 3.5px 0px #d81b60;
+        }
+
+        .screen_out1 {
+            width: 11em;
+            height: 7.75em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+
+        .screen {
+            width: 13em;
+            height: 7.85em;
+            font-family: 'Cairo', sans-serif;
+            border: 2px solid #881337;
+            border-radius: 10px;
+            z-index: 99;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #2b2b2b;
+            color: #ffebf0;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+        }
+
+        .screen::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .tv-channel {
+            display: none;
+            padding: 5px 15px;
+            font-size: 0.75rem;
+            /* صغرنا الخط سيكا عشان يكفي */
+            line-height: 1.6;
+            /* قللنا المسافة بين السطور */
+            font-weight: bold;
+            text-shadow: 1px 1px 3px #000;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            align-items: center;
+            /* بيسنتر الكلام بالطول */
+            justify-content: center;
+            /* بيسنتر الكلام بالعرض */
+            flex-direction: column;
+            text-align: center;
+        }
+
+        /* التعديل هنا: خليناها flex بدل block عشان التوسيط يشتغل صح */
+        .tv-channel.active {
+            display: flex;
+        }
+
+        /* شاشة التشويش (النغمشة) اللي هتشتغل مع الريموت */
+        .tv-static {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: repeating-radial-gradient(#000 0 0.0001%, #ffffff 0 0.0002%);
+            background-size: 100% 100%;
+            opacity: 0.7;
+            z-index: 105;
+        }
+
+        .lines {
+            display: flex;
+            column-gap: 0.1em;
+            align-self: flex-end;
+        }
+
+        .line1,
+        .line3 {
+            width: 2px;
+            height: 0.5em;
+            background-color: #881337;
+            margin-top: 0.5em;
+        }
+
+        .line2 {
+            flex-grow: 1;
+            width: 2px;
+            height: 1em;
+            background-color: #881337;
+        }
+
+        .buttons_div {
+            width: 4.25em;
+            align-self: center;
+            height: 8em;
+            background-color: #ffb3c1;
+            border: 2px solid #881337;
+            padding: 0.6em;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            row-gap: 0.75em;
+            box-shadow: 3px 3px 0px #d81b60;
+        }
+
+        .b1,
+        .b2 {
+            width: 1.65em;
+            height: 1.65em;
+            border-radius: 50%;
+            background-color: #ff4d6d;
+            border: 2px solid #881337;
+            box-shadow: inset 2px 2px 1px #ff8fa3, -2px 0px #881337;
+        }
+
+        .speakers {
+            display: flex;
+            flex-direction: column;
+            row-gap: 0.5em;
+        }
+
+        .speakers .g1 {
+            display: flex;
+            column-gap: 0.25em;
+        }
+
+        .speakers .g1 .g11,
+        .speakers .g1 .g12,
+        .speakers .g1 .g13 {
+            width: 0.65em;
+            height: 0.65em;
+            border-radius: 50%;
+            background-color: #d81b60;
+            border: 1px solid #881337;
+        }
+
+        /* ================= تصميم الريموت الكنترول الجديد ================= */
+        .remote-device {
+            width: 145px;
+            height: 302px;
+            background: linear-gradient(145deg, #ffb3c1, #ff8fa3);
+            border-radius: 60px;
+            position: relative;
+            box-shadow:
+                10px 10px 25px rgba(0, 0, 0, 0.2),
+                -5px -5px 15px rgba(255, 255, 255, 0.6),
+                inset 2px 2px 6px rgba(255, 255, 255, 0.8),
+                inset -2px -2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 25px;
+            transform: translateY(189px);
+            /* نزلناه لتحت أكتر هنا */
+            z-index: 10;
+        }
+
+        /* اللمبة */
+        .remote-led-indicator {
+            width: 10px;
+            height: 10px;
+            background: #333;
+            border-radius: 50%;
+            transition: 0.2s;
+            margin-bottom: 30px;
+            box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5), 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        .remote-led-indicator.active {
+            background: #ff4d4d;
+            box-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff4d4d, inset 0 0 5px #fff;
+        }
+
+        /* حاوية زراير التحكم */
+        .d-pad {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            margin-bottom: 25px;
+        }
+
+        /* تصميم الزراير (بقت بينك زي الجسم) */
+        .btn {
+            position: absolute;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ffb3c1, #ff8fa3);
+            /* نفس لون الجسم */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                4px 4px 8px rgba(0, 0, 0, 0.2),
+                -3px -3px 7px rgba(255, 255, 255, 0.8);
+            /* ضل أبيض يبرزها لبرة */
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            color: #3d0a1a;
+            /* الأيقونات نبيتي عشان تبان */
+            font-size: 15px;
+            border: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* شيلنا اللون الأحمر من زرار الباور */
+        .btn-top {
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .btn-bottom {
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .btn-left {
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .btn-right {
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+        }
+
+        .btn:active {
+            box-shadow:
+                inset 2px 2px 5px rgba(0, 0, 0, 0.2),
+                inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+            transform: scale(0.9);
+        }
+
+        .btn-top:active {
+            transform: translateX(-50%) scale(0.9);
+        }
+
+        .btn-bottom:active {
+            transform: translateX(-50%) scale(0.9);
+        }
+
+        .btn-left:active {
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        .btn-right:active {
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        /* زرار البوسة الكبير (بقى بينك زي الجسم) */
+        .big-pad {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ffb3c1, #ff8fa3);
+            /* نفس لون الجسم */
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow:
+                5px 5px 15px rgba(0, 0, 0, 0.2),
+                -4px -4px 12px rgba(255, 255, 255, 0.8);
+            transition: all 0.2s;
+            font-size: 32px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .big-pad:active {
+            transform: scale(0.95);
+            box-shadow:
+                inset 4px 4px 10px rgba(0, 0, 0, 0.2),
+                inset -4px -4px 10px rgba(255, 255, 255, 0.8);
+        }
+
+        /* ================= إعدادات تتر السينما للجافاسكريبت ================= */
+        .scrolling-content {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+            text-align: center;
+            will-change: transform;
+            /* مسحنا الأنيميشن من هنا عشان الجافاسكريبت هو اللي هيحرك الكلام دلوقتي */
+        }
+
+        .material-symbols- {
+            text-transform: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="canvas-hearts"></canvas>
+
+    <div id="login-screen">
+        <div class="gateway-card">
+            <h2>الباب ده مبيفتحش غير لأغلى الناس..<br>فاكرة تاريخنا انونتي؟ 😉🗝️</h2>
+            <input type="text" id="password-input" placeholder="مثال: 12/8/2023">
+            <button class="btn-style" onclick="checkPassword()">دخول</button>
+            <p id="error-msg">أيه ده أيه ده أزعل أنا كدا 😢</p>
+        </div>
+    </div>
+
+    <div id="main-hub">
+        <h1 class="hub-title">رحلتنا متقسمة لجزئين.. تحبي نفتح أنهي باب الأول؟ 🚪✨</h1>
+
+        <div class="hub-cards-container">
+            <div class="hub-card">
+                <h3>عيد ميلاد النونة بتاعتي 🎂</h3>
+                <button class="btn-style" onclick="startBalloonGame()">تصفح</button>
+            </div>
+
+            <div class="hub-card">
+                <h3>كتاب ذكريات صداقتنا 📖</h3>
+                <!--هنا انا  ماسح اول حرف من وان كليك عشان متقدرش تفتح الصفحة دى دلوقتى غير لما يوم 9 شهر 3 يجى-->
+                <button class="btn-style" onclick="openBookScene()">تصفح</button>
+            </div>
+
+            <div class="hub-card timer-card">
+                <h3>مدة صداقتنا الحلوة ⏳</h3>
+                <div id="counter-line-1" class="timer-large">جارِ الحساب...</div>
+                <div id="counter-line-2" class="timer-small">...</div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= شاشة البلالين (المفاجأة) ================= -->
+    <div id="balloons-room"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 2500; flex-direction: column; justify-content: center; align-items: center; overflow: hidden;">
+
+        <div id="stars-bar" style="position: absolute; top: 40px; display: flex; gap: 15px; z-index: 20;">
+            <span class="star-slot" id="star-1">⭐</span>
+            <span class="star-slot" id="star-2">⭐</span>
+            <span class="star-slot" id="star-3">⭐</span>
+            <span class="star-slot" id="star-4">⭐</span>
+            <span class="star-slot" id="star-5">⭐</span>
+        </div>
+
+        <h2 id="balloon-instruction"
+            style="color: #d81b60; font-size: 1.5rem; z-index: 10; text-align: center; margin-top: 100px; position: absolute; top: 20px;">
+            فرقعي البلالين عشان تجمعي النجوم! 🎈</h2>
+
+        <div id="surprise-gift-box"
+            style="display: none; z-index: 40; cursor: pointer; flex-direction: column; align-items: center;"
+            onclick="openSurpriseBox()">
+            <div style="font-size: 6rem; animation: shakeBox 1.5s infinite;">🎁</div>
+            <p
+                style="color: #d81b60; font-weight: bold; font-size: 1.4rem; margin-top: 10px; background: rgba(255,255,255,0.7); padding: 5px 15px; border-radius: 15px;">
+                افتحي الهدية!</p>
+        </div>
+
+        <div id="cinematic-overlay"
+            style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 45; opacity: 0; transition: opacity 1.5s ease;">
+        </div>
+
+        <div id="glowing-message"
+            style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 50; color: #fff; font-size: 2.5rem; font-weight: 900; text-align: center; text-shadow: 0 0 20px #ff4d6d, 0 0 40px #ff4d6d, 0 0 60px #ffb3c1; width: 90%; line-height: 1.6; opacity: 0; transition: opacity 1.5s ease;">
+            أنتي الحاجة الوحيدة<br>الخمس نجوم اللي حصلتلي في حياتي<br><span
+                style="font-size: 3.5rem; display: block; margin-top: 15px;">⭐⭐⭐⭐⭐</span>
+        </div>
+
+        <div id="interactive-cake-container"
+            style="display: none; flex-direction: column; align-items: center; z-index: 30;">
+            <audio id="saad-sound" src="happy.mp3" preload="auto"></audio>
+            <p id="wish-text"
+                style="color: #d81b60; font-size: 1.4rem; margin-bottom: 30px; font-weight: bold; text-align: center; line-height: 1.6;">
+                غمضي عينيكي، اتمني أمنية.. <br> ودوسي على كل شمعة لوحدها عشان تطفيها! 🕯️</p>
+
+            <div class="interactive-cake" style="position: relative; margin-top: 60px; user-select: none;">
+
+                <img src="candles.png" alt="شمع 21"
+                    style="position: absolute; top: 116px; left: 60%; transform: translateX(-50%); width: 135px; z-index: 5; pointer-events: none;">
+
+                <img src="cake.png" alt="تورتة عيد الميلاد"
+                    style="width: 250px; filter: drop-shadow(0 15px 15px rgba(0,0,0,0.2)); position: relative; z-index: 4;">
+
+                <div id="flame-2" class="real-flame flame-left" onclick="blowSingleCandle(2)"></div>
+                <div id="flame-1" class="real-flame flame-right" onclick="blowSingleCandle(1)"></div>
+
+            </div>
+        </div>
+        <div id="birthday-card-container"
+            style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; justify-content: center; align-items: center; perspective: 1200px;">
+
+            <div id="the-interactive-envelope" class="envelope-wrapper" onclick="openEnvelope()">
+
+                <div class="envelope-letter">
+                    <p style="color: #d81b60; font-size: 1.8rem; font-weight: 900; line-height: 1.4;">كل سنة وأنتي
+                        طيبة<br>انونتي 🎉</p>
+                </div>
+
+                <div class="envelope-seal">💋</div>
+
+                <div class="flap top-flap"></div>
+                <div class="flap left-flap"></div>
+                <div class="flap right-flap"></div>
+                <div class="flap bottom-flap"></div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div id="birthday-archive"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff0f5; z-index: 2000; flex-direction: column; align-items: center; padding: 80px 20px 40px 20px; overflow-y: auto;">
+
+        <button class="back-btn" onclick="closeBirthdayArchive()">الرجوع للداشبورد 🔙</button>
+
+        <h1 class="hub-title">أرشيف أعياد ميلاد نونتى 🎂✨</h1>
+
+        <div class="hub-cards-container">
+            <div class="hub-card" style="border: 3px solid #ff4d6d; transform: scale(1.05);">
+                <h3>عيد ميلاد الـ 21 🥳</h3>
+                <button class="btn-style" onclick="openBirthdayYear(2026)">افتح الهدية</button>
+            </div>
+
+            <div class="hub-card">
+                <h3>عيد ميلاد الـ 20 💖</h3>
+                <button class="btn-style" onclick="openBirthdayYear(2025)">الذكريات</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tv-birthday-page"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 240, 245, 0.85); z-index: 2100; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; backdrop-filter: blur(3px);">
+
+        <button class="back-btn" onclick="closeTvPage()">الرجوع للأرشيف 🔙</button>
+
+        <div class="retro-tv-wrapper">
+            <div class="main">
+                <div class="antenna">
+                    <div class="a1"></div>
+                    <div class="a2"></div>
+                </div>
+                <div class="tv">
+                    <div class="display_div">
+                        <div class="screen_out1">
+                            <div class="screen" id="tv-screen">
+                                <div class="tv-static" id="tv-noise"></div>
+
+                                <div class="tv-channel active" id="main-channel"
+                                    style="display: block; position: relative; width: 100%; height: 100%; overflow: hidden;">
+                                    <div class="scrolling-content" id="scrolling-text"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lines">
+                        <div class="line1"></div>
+                        <div class="line2"></div>
+                        <div class="line3"></div>
+                    </div>
+                    <div class="buttons_div">
+                        <div class="b1"></div>
+                        <div class="b2"></div>
+                        <div class="speakers">
+                            <div class="g1">
+                                <div class="g11"></div>
+                                <div class="g12"></div>
+                                <div class="g13"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="remote-device">
+
+            <div class="remote-led-indicator" id="remote-led"></div>
+
+            <div class="d-pad">
+                <button class="btn btn-top" id="btn-power">
+                    <span class="material-symbols-outlined">power_settings_new</span>
+                </button>
+                <button class="btn btn-left" id="btn-rewind">
+                    <span class="material-symbols-outlined">replay_5</span>
+                </button>
+                <button class="btn btn-right" id="btn-forward">
+                    <span class="material-symbols-outlined">forward_5</span>
+                </button>
+                <button class="btn btn-bottom" id="btn-play-pause">
+                    <span class="material-symbols-outlined">play_pause</span>
+                </button>
+            </div>
+
+            <div class="big-pad" id="btn-kiss">
+                <span class="material-symbols-outlined">question_mark</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="book-scene">
+        <button class="back-btn" onclick="closeBookScene()">الرجوع للداشبورد 🔙</button>
+
+        <div id="main-book" class="book">
+            <div class="page" id="page-2026" style="z-index: 1;">
+                <div class="page-content">
+                    <div class="page-header">
+                        <h2>ذكريات ٢٠٢٦</h2>
+                    </div>
+                    <div class="polaroids-area">
+                        <div class="polaroid p1">
+                            <div class="clip"></div>
+                            <img src="photo/important/٢٠٢٥١١٠٩_١٣٤٠٢٤.jpg" alt="ذكرى 1">
+                        </div>
+                        <div class="polaroid p2">
+                            <div class="clip"></div>
+                            <img src="photo/important/٢٠٢٥١١٠٩_١٣٤٠٥٧.jpg" alt="ذكرى 2">
+                        </div>
+                        <div class="polaroid p3">
+                            <div class="clip"></div>
+                            <img src="photo/important/٢٠٢٥١١١٧_١٢١٣٥١.jpg" alt="ذكرى 3">
+                        </div>
+                    </div>
+                    <div class="page-footer">
+                        <button class="flip-btn" onclick="unflipPage('page-2027')">➡️</button>
+                        <div class="year-door" onclick="enterYear(2026)">2026</div>
+                        <div style="width: 50px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page" id="page-2027" style="z-index: 2;">
+                <div class="page-content">
+                    <div class="page-header">
+                        <h2>ذكريات ٢٠٢٧</h2>
+                    </div>
+                    <div class="polaroids-area">
+                        <div class="polaroid p1">
+                            <div class="clip"></div>
+                            <img src="photo/important/Screenshot_٢٠٢٦٠٥١٣_٢٣٠٢٤٤_Google.jpg" alt="ذكرى 1">
+                        </div>
+                        <div class="polaroid p2">
+                            <div class="clip"></div>⏳
+                        </div>
+                        <div class="polaroid p3">
+                            <div class="clip"></div>❓
+                        </div>
+                    </div>
+                    <div class="page-footer">
+                        <div style="width: 50px;"></div>
+                        <div class="year-door" onclick="enterYear(2027)">2027</div>
+                        <button class="flip-btn" onclick="flipPage('page-2027')">⬅️</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page cover" id="page-cover" style="z-index: 3;">
+                <div class="spiral-binding"></div>
+                <h1>كتاب ذكرايات<br> بودى والنونة</h1>
+                <div class="wax-seal" onclick="flipPage('page-cover')"><span>A&N</span></div>
+                <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">دوسى على الحرفين عشان تفتحى الكتاب</p>
+            </div>
+        </div>
+
+        <div id="sub-book-2026"
+            style="display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: center;">
+
+            <div class="book" style="position: relative;">
+                <div class="page" id="p6" style="z-index: 1;">
+                    <div class="page-content">
+                        <div class="page-header">
+                            <h2>الريكورد الصوتي 🎙️</h2>
+                        </div>
+                        <div class="content-area"
+                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; text-align: center; padding: 0 25px; box-sizing: border-box;">
+
+                            <div
+                                style="background: rgba(255, 255, 255, 0.85); padding: 35px 20px; border-radius: 25px; border: 2px dashed #ff4d6d; box-shadow: 0 10px 25px rgba(255, 77, 109, 0.15); max-width: 320px; margin: 0 auto;">
+
+                                <div style="font-size: 3.5rem; margin-bottom: 20px;">🎵🎙️🎵</div>
+
+                                <audio controls style="width: 100%; outline: none;">
+                                    <source src="voice.mp3" type="audio/mpeg">
+                                    متصفحك مش بيدعم تشغيل الصوتيات.
+                                </audio>
+
+                                <div style="margin-top: 20px; font-size: 1.1rem; color: #ff4d6d; font-weight: bold;">
+                                    شغلى الريكورد واسمعى ❤️
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="page-footer">
+                            <div style="width: 50px;"></div>
+                            <button class="flip-btn" onclick="unflipPage('p5')">➡️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page" id="p5" style="z-index: 2;">
+                    <div class="page-content">
+                        <div class="page-header">
+                            <h2>كلمة من القلب ❤️</h2>
+                        </div>
+                        <div class="content-area"
+                            style="text-align: right; color: #ff4d6d; padding: 15px 20px; font-size: 1.1rem; line-height: 1.8; direction: rtl; font-weight: 500;">
+                            طبعاً في ظرف سنة وكأول سنة لينا مع بعض، الخروجات دي عددها معقول وحلو.. عايزين بقى نبقى نزود
+                            شوية تفاصيل حلوة كدة عشان نبقى نفتكرها دايماً، ناخد صورة للمكان أو لينا أو لحاجة جبناها جوة
+                            المكان عشان نفتكر بيها اليوم ده.
+                            <br><br>
+                            بس صراحة كانوا كام يوم اتبسطت فيهم والله العظيم، وكانوا أحلى أيام في السنة دي وكانوا بالسنة
+                            كلها كمان! ومهما عدت الأيام هفضل فاكرهم لأنهم أول حاجة.. وأول حاجة عمرها ما بتتنسى دايماً.
+                            ❤️
+                        </div>
+                        <div class="page-footer">
+                            <button class="flip-btn" onclick="unflipPage('p2')">➡️</button>
+                            <button class="flip-btn" onclick="flipPage('p5')">⬅️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page" id="p2" style="z-index: 5;">
+                    <div class="page-content">
+                        <div class="page-header">
+                            <h2>ذكريات بالصور 📸</h2>
+                        </div>
+
+                        <div class="polaroids-area">
+                            <div class="polaroid p1"
+                                onclick="openLightbox('photo/important/٢٠٢٥١١٠٩_١٣٤٠٥٧.jpg', '<h3 class=&quot;title_of_Paragraph&quot;>المنتزه<br>١٨ / ١٠ / ٢٠٢٥</h3><p>اليوم ده كان اول خروجة لينا بجد بعد كتبت كتاب قريبتك ومش هنسى ابدا لما كنتى تعبانة ساعتها ومكنتيش نايمة كويس وتقوليلى بحب المشى ونمشى شوية وتفيصى منى 😂 بص الصراحة احنا مشينا حبة حلوين اليوم ده والله منكرش. ومن ساعت اليوم ده بالذات واحنا معلقين مع كلمة منفدين على بعض دى ولما خلصنا المنتزه وركبنا الاوتوبيس الاحمر ده وشوية الناس الكبيرة الى كانو عمالين ياخدو سيلفى ويغنو هناك كانو لذاذ الصراحة وكانت تجربة جديدة بالنسبالي واهم حاجة الروج الى فضل لازق فى ايدى ده و مطلعش غير بالمرطب ياترى لو مكانش معاكى المرطب كنا عملنا ايه 😂</p>')">
+                                <div class="clip"></div>
+                                <img src="photo/important/٢٠٢٥١١٠٩_١٣٤٠٥٧.jpg" alt="ذكرى 1">
+                            </div>
+
+                            <div class="polaroid p2"
+                                onclick="openLightbox('photo/important/٢٠٢٥١١٠٩_١٣٤٠٢٤.jpg', '<h3 class=&quot;title_of_Paragraph&quot;>مكتبة اسكندرية<br>٣٠ / ١٠ / ٢٠٢٥</h3><p>ودى كانت تانى خروجة لينا قبل الفرح تقريبا لما كنتى عايزة تنزلى عشان ماما كانت جاية والله العظيم كان يوم جميل بجد ويومها كنت وريتك الشارع بتاعى ومش هنسی ساعت لما قولتلك قبلها بليل متجبيش معاكى قصافة عشان التفتيش وبرضو جبتى بس الحمد لله عدت على خير واحنا داخلين المكتبة بقا قعدتى تقولیلی احنا برا مصر ولا ايه بس مصر فيها حاجات حلوة والله زيك كدا برضو وساعت ما جينا ندخل ياختى قالك اطلعو كلو الاكل ده برا وتعالو وانا خلصت الباتيه فى ثانية وانتى ما شاء الله سلحفة بتاكلى 😂 بس براحتك برضو انونتى. وفى الاخر دخلنا متأخر وقعدنا نلف على كراسى مش لاقين وبعد عناء الحمد لله لقينا وقعدنا ذاكرنا فى جو جميل وقايبس حلوة للمذاكرة وذاكرنا محاسبة والكراسة الى كتبتى فيها لسة معايا على فكرة بس صراحة كان يوم حلو في المكتبة ولازم يتكرر ها</p>')">
+                                <div class="clip"></div>
+                                <img src="photo/important/٢٠٢٥١١٠٩_١٣٤٠٢٤.jpg" alt="ذكرى 2">
+                            </div>
+
+                            <div class="polaroid p3"
+                                onclick="openLightbox('photo/important/٢٠٢٥١١١٧_١٢١٣٥١.jpg', '<h3 class=&quot;title_of_Paragraph&quot;>قهوة فارق<br>١٧ / ١١ / ٢٠٢٥</h3><p>زى ما كنت واعدك انى هقعدك فى قهوة بلدى قعدتك فعلا في قهوة ومش بس كدا لا دى من اشهر قهاوی اسكندرية كمان عشان انتى مش مقامك اى قهوة كدا وخلاص انونتى. بس كان يوم حلو اوى والله وابتديناه بقعدة رايقة ع البحر فى المنشية قدام الجندي المجهول كانت احلى قعدة قعدتها معاكى ولازم تتكر كتير برضو ومش هنسى الوقعة الى وقعتيها لما جينا ننط من الصور للأرض حطى رجلك هنا لا انتى زحلقتى رجلك واقولك انتى كويسة تقوليلى الخبطة سمعت في نفوخى😂 ف كان لازم بعد الخبطة دى نقعدك قاعدة رايقة تانية كان نفسك فيها الى هيا القهوة ومش هنسى القهوة الى شربتها انا وشغلتلى بطنى يومها ودخلت الحمام دفعونى ٥ ج ولاد الهرمة الى كان مزعلنى ان مكانش فيه شبكة فى الحمام بس ماشی کانو مشغلين تامر عاشور😅 بس الصراحة كان يوم من احلى الايام الى خرجنا فيها مع بعض يكترر تانی اه بس بلاش القهوة بقا عشان الدخان بيتعبك انونتي</p>')">
+                                <div class="clip"></div>
+                                <img src="photo/important/٢٠٢٥١١١٧_١٢١٣٥١.jpg" alt="ذكرى 3">
+                            </div>
+
+                            <div class="polaroid p4"
+                                onclick="openLightbox('', '<h3 class=&quot;title_of_Paragraph&quot;>الورك سبيس<br>٢٤ / ١٢ / ٢٠٢٥</h3><p>معيش صور لأننا مصورناش اى حاجة في اليوم ده خالص بس كان يوم عامل شبه يوم المكتبة بس على اديق شوية عشان طبعا المكان مش قد المكتبة برضو ودخلنا عشان نذاكر وفتحنا الكراسات ویلا انونتی اشرحی اشرح ايه يابت اشرحى تضحك ومش عايزة تشرح خالص يادى النيلة دا احنا كنا مخططين اليوم ده عشان تشرحى وعملتى فيها السبع رجالة ع الواتس وانا اشرحلك وانا افهمك وفى الاخر مكسوفة هارك ابيض يختى ولا ازرق عشان الحسد وبعد اقناع طويل وافقتى تشرحى الحمد لله كان شرح مية مية طالع من بوق دكتورة مش من بوق واحدة عادية بس بالله عليكى متخترعيش مسائل بارقام من دماغك تانى😂 وقعدنا ذاكرنا كام محاضرة وحلينا كام تكليف وجتلنا الشلة الكبيرة الى جت دى وقعدنا نألس عليهم شوية وبعديها فتحنا مشروع الكافيه الى فوش المعهد ده واقولك التسويق اول حاجة تقوليلى لا ونزلنا بعدها اتمشينى شوية وقعدنا نرغى برضو في موضوع التسويق الاول ولا اللوجستيات لحد ما وصلنا الاوتوبيس وركبنا وروحنا على خير الحمد لله</p>')">
+                                <div class="clip"></div>
+                                <div class="emoji-placeholder">☕📝</div>
+                            </div>
+                        </div>
+                        <div class="page-footer">
+                            <button class="flip-btn" onclick="unflipPage('p1')">➡️</button>
+                            <button class="flip-btn" onclick="flipPage('p2')">⬅️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page" id="p1" style="z-index: 6;">
+                    <div class="page-content">
+                        <div class="page-header">
+                            <h2>أول سنة لينا مع بعض </h2>
+                        </div>
+
+                        <div class="scroll-area">
+                            <p
+                                style="text-align: center; color: #ff4d6d; padding: 10px; font-size: 1.2rem; line-height: 1.8;">
+                                فاتت سنة بحلوها ومرها بس الحقيقة أحلى حاجة كانت فى السنة دى هيا إننا كنا فيها سوا. مش
+                                مصدق إن عدت سنة كاملة وإحنا مستحملين بعض إنجاز تاريخي بصراحة يستاهل جايزة نوبل في الصبر
+                                مني ومنك طبعا😂 بس بجد يا نونة وسط كل الدوشة والزحمة اللي في حياتنا ووسط ضغط الدراسة
+                                والمعهد وام جروب الدفعة اللي مطلع عنينا ده😅 وجودك كان دايماً هو البريك اللي باخد فيه
+                                نفسي شكراً على كل مرة سمعتيني فيها وأنا بشتكي من أتفه حاجات وشكراً على كل نصيحة قولتيها
+                                حتى لو معملتش بيها ساعتها ورجعت قولتلك عندك حق إحنا اختلفنا مرة واتناقرنا كذا مرة وزعلنا
+                                ورجعنا بس في الآخر المواقف هي اللي بتقرب او بتبعد الناس من بعضبها والسنة دي أثبتتلي إنك
+                                أجدع أخت واجدع صاحبة ممكن الواحد يتعامل معاها او يعتمد عليها إنتي مش بس شاطرة ومجتهدة في
+                                دراستك ما شاء الله عليكي إنتي كمان قلبك أبيض ونضيف ودى عملة نادرة الأيام دي خدى بالك أنا
+                                بجد بشكر ربنا انو خلى الصدفة جمعتنا في يوم من الايام والى هوا زى انهاردة من سنة بالظبت
+                                ومبسوط بكل لحظة ضحكنا فيها من قلبنا ولكل فويس نوت طويل حكيتى فيه واقولك انتى بتسجلى
+                                اغنية ولا ايه تقوليلي اسمع غصب عنك مكنتش بسمع غصب عنى والله بالعكس كنت بسمع وانا مبسوط
+                                اوى كمان وكل مرة كنت بستجدعك لما كنتى بتشجعيني اعمل حاجة انا كنت ببقا محبط منها او
+                                بتشجعينى ابطل حاجة انتى شايفها وحشة بالنسباليه بجد دى كانت احلى حاجة واحلى صفة فيكى
+                                والله واحب اقولك في الاخر كل سنة وإحنا أخوات واصحاب وسند لبعض وعقبال سنين كتير جاية نحقق
+                                فيها كل أحلامنا وأشوفك أنجح واحدة في الدنيا وتشوفيني انجح واحد برضو بعد منك ربنا يديمك
+                                نعمة حلوة ويحلي أيامك زي ما بتحلي قعدتنا او شاتنا مع بعض بوجودك او حتى بصوتك بس شكرا إنك
+                                هنا وشكرا إنك نونتي
+                            </p>
+                        </div>
+
+                        <div class="page-footer">
+                            <div style="width: 50px;"></div>
+                            <button class="flip-btn" onclick="flipPage('p1')">⬅️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="back-to-main" onclick="backToMainBook()">⬅️ العودة للكتاب الرئيسي</button>
+        </div>
+        <div id="sub-book-2027"
+            style="display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: center;">
+            <div class="book" style="position: relative;">
+
+                <div class="page" id="p2027-1" style="z-index: 6;">
+                    <div class="page-content">
+                        <div class="page-header">
+                            <h2>تاني سنة لينا مع بعض ❤️</h2>
+                        </div>
+
+                        <div class="scroll-area">
+                            <p
+                                style="text-align: center; color: #ff4d6d; padding: 10px; font-size: 1.2rem; line-height: 1.8;">
+                                هنا بقى يا بطل هتقدر تكتب كلامك الجديد كله لثاني سنة سوا.. المساحة دي مجهزة وبتاخد سكرول
+                                شيك جداً عشان تشيل أي حجم كلام تكتبه من قلبك لنونتك من غير ما يخرج بره إطار الصفحة 😉
+                            </p>
+                        </div>
+
+                        <div class="page-footer">
+                            <div style="width: 50px;"></div>
+                            <button class="flip-btn" onclick="flipPage('p2027-1')">⬅️</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="page" id="p2027-2" style="z-index: 5;">
+                    <div class="page-content">
+                        <div class="page-header">
+                            <h2>صور خروجاتنا 📸</h2>
+                        </div>
+
+                        <div class="polaroids-area">
+                            <div class="polaroid p1"
+                                onclick="openLightbox('photo/important/Screenshot_٢٠٢٦٠٥١٣_٢٣٠٢٤٤_Google.jpg', '')">
+                                <div class="clip"></div>
+                                <img src="photo/important/Screenshot_٢٠٢٦٠٥١٣_٢٣٠٢٤٤_Google.jpg" alt="ذكرى1">
+                            </div>
+
+                            <div class="polaroid p2" onclick="openLightbox('', 'مكان لذكرى خروجة جديدة عسل زيكم 😉')">
+                                <div class="clip"></div>
+                                <div class="emoji-placeholder">✨</div>
+                            </div>
+
+                            <div class="polaroid p3" onclick="openLightbox('', 'مكان لذكرى خروجة جديدة عسل زيكم 😉')">
+                                <div class="clip"></div>
+                                <div class="emoji-placeholder">🍦</div>
+                            </div>
+
+                            <div class="polaroid p4" onclick="openLightbox('', 'مكان لذكرى خروجة جديدة عسل زيكم 😉')">
+                                <div class="clip"></div>
+                                <div class="emoji-placeholder">🎒</div>
+                            </div>
+                        </div>
+
+                        <div class="page-footer">
+                            <button class="flip-btn" onclick="unflipPage('p2027-1')">➡️</button>
+                            <button class="flip-btn" onclick="flipPage('p2027-2')">⬅️</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="page" id="p2027-3" style="z-index: 4;">
+                    <div class="page-content">
+                        <div class="page-header">
+                            <h2>إحصائيات مكالماتنا 📞</h2>
+                        </div>
+
+                        <div class="polaroids-area">
+                            <div class="polaroid p5"
+                                onclick="openLightbox('photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٢٢_٢٢١٥١٠_Call.jpg', ' ')">
+                                <div class="clip"></div>
+                                <img src="photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٢٢_٢٢١٥١٠_Call.jpg"
+                                    alt="اسكرين مكالمة 1">
+                            </div>
+
+                            <div class="polaroid p6"
+                                onclick="openLightbox('photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٢٨_١٧٣٠٤١_Call.jpg', 'بتاعت اللحمة فى العيد')">
+                                <div class="clip"></div>
+                                <img src="photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٢٨_١٧٣٠٤١_Call.jpg"
+                                    alt="اسكرين مكالمة 2">
+                            </div>
+
+                            <div class="polaroid p7"
+                                onclick="openLightbox('photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٢٩_٢١٣٨٣٨_One UI Home.jpg', ' ')">
+                                <div class="clip"></div>
+                                <img src="photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٢٩_٢١٣٨٣٨_One UI Home.jpg"
+                                    alt="اسكرين مكالمة 3">
+                            </div>
+
+                            <div class="polaroid p8"
+                                onclick="openLightbox('photo/screen_shots_call/Screenshot_٢٠٢٦٠٦٠٨_٢١١٢٣٨_One UI Home.jpg', ' ')">
+                                <div class="clip"></div>
+                                <img src="photo/screen_shots_call/Screenshot_٢٠٢٦٠٦٠٨_٢١١٢٣٨_One UI Home.jpg"
+                                    alt="اسكرين مكالمة 4">
+                            </div>
+                        </div>
+
+                        <div class="screenshots-trigger" onclick="openScreenshotsSlider('calls')">
+                            باقي اسكرينات المكالمات 💬
+                        </div>
+
+                        <div class="call-stats-container">
+                            <div class="stats-title">مدة مكالمتنا السنادي ⏱️</div>
+                            <div class="stats-numbers">
+                                <span class="num-box">16<small>ساعة</small></span> :
+                                <span class="num-box">8<small>دقيقة</small></span> :
+                                <span class="num-box">32<small>ثانية</small></span>
+                            </div>
+                        </div>
+
+                        <div class="page-footer">
+                            <button class="flip-btn" onclick="unflipPage('p2027-2')">➡️</button>
+                            <button class="flip-btn" onclick="flipPage('p2027-3')">⬅️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page" id="p2027-4" style="z-index: 3;">
+                    <div class="page-content">
+                        <div class="page-header">
+                            <h2>اسكرينات وصور 💬📸</h2>
+                        </div>
+
+                        <div class="polaroids-area">
+                            <div class="polaroid p5"
+                                onclick="openLightbox('photo/screen_shots_watsaap/٢٠٢٦٠٥٢٨_١٩١٨٤٦.jpg', ' أحلى حتة لحمة كلتها ')">
+                                <div class="clip"></div>
+                                <img src="photo/screen_shots_watsaap/٢٠٢٦٠٥٢٨_١٩١٨٤٦.jpg" alt="أحلى حتة لحمة كلتها">
+                            </div>
+
+                            <div class="polaroid p6"
+                                onclick="openLightbox('photo/screen_shots_watsaap/Screenshot_٢٠٢٦٠٥١٣_٢٠٥٩٢٩_WhatsApp.jpg', ' ماى فيفوريت داى انا كمان والله ')">
+                                <div class="clip"></div>
+                                <img src="photo/screen_shots_watsaap/Screenshot_٢٠٢٦٠٥١٣_٢٠٥٩٢٩_WhatsApp.jpg" alt="">
+                            </div>
+
+                            <div class="polaroid p7"
+                                onclick="openLightbox('photo/screen_shots_watsaap/Screenshot_٢٠٢٦٠٣٢٠_٢٢٢٦٢٥_WhatsApp.jpg', 'بعد صلاة العيد الصغير ')">
+                                <div class="clip"></div>
+                                <img src="photo/screen_shots_watsaap/Screenshot_٢٠٢٦٠٣٢٠_٢٢٢٦٢٥_WhatsApp.jpg"
+                                    alt="بعد صلاة العيد الصغير">
+                            </div>
+
+                            <div class="polaroid p8"
+                                onclick="openLightbox('photo/screen_shots_watsaap/Screenshot_٢٠٢٦٠٥٠٣_٢١٠٥٥٩_WhatsApp.jpg', 'أحلى اسكرين لحد دلوقتى  ')">
+                                <div class="clip"></div>
+                                <img src="photo/screen_shots_watsaap/Screenshot_٢٠٢٦٠٥٠٣_٢١٠٥٥٩_WhatsApp.jpg"
+                                    alt="صورة 2">
+                            </div>
+                        </div>
+
+                        <div class="screenshots-trigger" style="bottom: 100px;"
+                            onclick="openScreenshotsSlider('whatsapp')">
+                            باقي الاسكرينات والصور 💬
+                        </div>
+
+                        <div class="page-footer">
+                            <button class="flip-btn" onclick="unflipPage('p2027-3')">➡️</button>
+                            <button class="flip-btn" onclick="flipPage('p2027-4')">⬅️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page" id="p2027-5" style="z-index: 2;">
+                    <div class="page-content">
+                        <div class="page-header">
+                            <h2>كلمة من القلب ❤️</h2>
+                        </div>
+
+                        <div class="content-area"
+                            style="text-align: center; color: #ff4d6d; padding: 20px; font-size: 1.1rem; line-height: 1.8;">
+                            /* مساحة عشان تكتب فيها رسالة جديدة من قلبك */
+                        </div>
+
+                        <div class="page-footer">
+                            <button class="flip-btn" onclick="unflipPage('p2027-4')">➡️</button>
+                            <button class="flip-btn" onclick="flipPage('p2027-5')">⬅️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page" id="p2027-6" style="z-index: 1;">
+                    <div class="page-content">
+                        <div class="page-header">
+                            <h2>الريكورد الصوتي 🎙️</h2>
+                        </div>
+
+                        <div class="content-area"
+                            style="text-align: center; margin-top: 50px; color: #ff8fa3; font-weight: bold;">
+                            /* مكان مشغل الريكورد الجديد */
+                        </div>
+
+                        <div class="page-footer">
+                            <div style="width: 50px;"></div>
+                            <button class="flip-btn" onclick="unflipPage('p2027-5')">➡️</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- ممكن تضيف صفحات أكتر ل2027 هنا بنفس النظام لو حبيتي تضيفي حاجات جديدة في المستقبل -->
+            </div>
+            <button class="back-to-main" onclick="backToMainBook()">⬅️ العودة للكتاب الرئيسي</button>
+        </div>
+    </div>
+    <div id="lightbox-overlay">
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="صورة مكبرة">
+            <div class="lightbox-caption" id="lightbox-text"></div>
+            <button class="close-lightbox" onclick="closeLightbox()">قفل الصورة ✖️</button>
+        </div>
+    </div>
+    <div id="screenshots-slider-overlay" style="display: none;">
+        <div class="slider-content">
+            <button class="close-slider" onclick="closeScreenshotsSlider()">قفل ✖️</button>
+
+            <div class="slider-image-container">
+                <button class="slider-btn prev-btn" onclick="changeSlide(-1)">◀</button>
+                <img id="slider-main-img" src="" alt="اسكرين">
+                <button class="slider-btn next-btn" onclick="changeSlide(1)">▶</button>
+            </div>
+
+            <div class="slider-caption" id="slider-text"></div>
+            <div class="slider-counter" id="slider-counter"></div>
+        </div>
+    </div>
+    <script>
+        // --- 1. تأثير الكونفيتي وفتح الباب ---
+        function checkPassword() {
+            const input = document.getElementById("password-input").value;
+            if (input.trim() === "9/3/2025") {
+                document.getElementById("error-msg").style.display = "none";
+
+                // بازوكا الكونفيتي
+                confetti({
+                    particleCount: 200,
+                    spread: 90,
+                    origin: { y: 0.6 },
+                    colors: ['#ff4d6d', '#ffb3c1', '#ffffff', '#ff758c']
+                });
+
+                // أنيميشن اختفاء الكارت كأنه بيفتح
+                const loginScreen = document.getElementById("login-screen");
+                loginScreen.style.transform = "scale(1.2)";
+                loginScreen.style.opacity = "0";
+
+                setTimeout(() => {
+                    loginScreen.style.display = "none";
+                    // إظهار شاشة الكروت التلاتة
+                    document.getElementById("main-hub").style.display = "flex";
+                }, 1000);
+            } else {
+                const errorMsg = document.getElementById("error-msg");
+                errorMsg.style.display = "block";
+                errorMsg.style.animation = 'none';
+                errorMsg.offsetHeight;
+                errorMsg.style.animation = null;
+            }
+        }
+
+        // --- التحكم في الكتاب (الفتح والتقليب) ---
+        function openBookScene() {
+            document.getElementById("main-hub").style.display = "none";
+            document.getElementById("book-scene").style.display = "flex";
+        }
+
+        function closeBookScene() {
+            document.getElementById("book-scene").style.display = "none";
+            document.getElementById("main-hub").style.display = "flex";
+            // نقفل الكتاب تاني لما نرجع عشان لو فتحناه مرة تانية نلاقيه مقفول من بره
+            unflipPage('page-cover');
+            unflipPage('page-2027');
+        }
+
+        function flipPage(pageId) {
+            document.getElementById(pageId).classList.add('flipped');
+        }
+
+        function unflipPage(pageId) {
+            document.getElementById(pageId).classList.remove('flipped');
+        }
+
+        function closeBookScene() {
+            document.getElementById("book-scene").style.display = "none";
+            document.getElementById("main-hub").style.display = "flex";
+            unflipPage('page-cover');
+            unflipPage('page-2027');
+            // احتياطي نرجع للكتاب الرئيسي لو كانت قفلت وهي جوه 2026
+            backToMainBook();
+        }
+
+        function enterYear(year) {
+            // الحركة الصايعة دي بترجع كل الصفحات لأصلها عشان الكتاب يبدأ من الأول دايماً
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('flipped');
+            });
+
+            if (year === 2026) {
+                document.getElementById('main-book').style.display = 'none';
+                document.getElementById('sub-book-2026').style.display = 'flex';
+            } else if (year === 2027) {
+                document.getElementById('main-book').style.display = 'none';
+                document.getElementById('sub-book-2027').style.display = 'flex';
+            }
+        }
+
+        function backToMainBook() {
+            document.getElementById('sub-book-2026').style.display = 'none';
+            document.getElementById('sub-book-2027').style.display = 'none'; // ضفنا دي عشان تقفل 2027 لما نرجع
+            document.getElementById('main-book').style.display = 'block';
+        }
+        // --- 2. العداد بتاع كارت الصداقة ---
+        const startDate = new Date("March 9, 2025 00:00:00").getTime();
+
+        function updateCounter() {
+            const now = new Date().getTime();
+            const diff = now - startDate;
+
+            if (diff < 0) {
+                document.getElementById("counter-line-1").innerText = "لم نبدأ بعد!";
+                return;
+            }
+
+            const seconds = Math.floor((diff / 1000) % 60);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            const years = Math.floor(days / 365);
+            const remainingDaysAfterYears = days % 365;
+            const months = Math.floor(remainingDaysAfterYears / 30);
+            const finalDays = remainingDaysAfterYears % 30;
+
+            document.getElementById("counter-line-1").innerText =
+                `${years} سنة، و ${months} شهر، و ${finalDays} يوم`;
+
+            document.getElementById("counter-line-2").innerText =
+                `${hours} ساعة : ${minutes} دقيقة : ${seconds} ثانية`;
+        }
+        setInterval(updateCounter, 1000);
+
+        // --- 3. القلوب اللي بتطلع عند الضغط في أي مكان ---
+        function spawnHeart(e) {
+            const x = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            const y = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart-click';
+            heart.innerHTML = Math.random() > 0.5 ? '💖' : '❤️';
+            heart.style.left = x + 'px';
+            heart.style.top = y + 'px';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 1500);
+        }
+        window.addEventListener('click', spawnHeart);
+        window.addEventListener('touchstart', spawnHeart, { passive: true });
+
+        // --- 4. خلفية القلوب اللي بتطير عشوائي ---
+        const canvas = document.getElementById("canvas-hearts");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let heartsArray = [];
+        const heartEmojis = ['❤️', '💖', '🤍', '💕'];
+
+        class BackgroundHeart {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100;
+                this.size = Math.random() * 20 + 10;
+                this.speedY = Math.random() * 1.5 + 0.5;
+                this.emoji = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+            update() {
+                this.y -= this.speedY;
+                if (this.y < -50) {
+                    this.y = canvas.height + 50;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+            draw() {
+                ctx.globalAlpha = this.opacity;
+                ctx.font = this.size + "px Arial";
+                ctx.fillText(this.emoji, this.x, this.y);
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        function initBackground() {
+            heartsArray = [];
+            for (let i = 0; i < 30; i++) {
+                heartsArray.push(new BackgroundHeart());
+            }
+        }
+
+        function animateBackground() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < heartsArray.length; i++) {
+                heartsArray[i].update();
+                heartsArray[i].draw();
+            }
+            requestAnimationFrame(animateBackground);
+        }
+
+        initBackground();
+        animateBackground();
+
+        window.addEventListener('resize', function () {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initBackground();
+        });
+
+        function openLightbox(imageSrc, captionText) {
+            const lightbox = document.getElementById('lightbox-overlay');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxText = document.getElementById('lightbox-text');
+
+            // --- التريكة هنا: بنشوف لو فيه صورة نعرضها، لو مفيش نخفي مكانها ---
+            if (imageSrc && imageSrc !== '') {
+                lightboxImg.src = imageSrc;
+                lightboxImg.style.display = 'block'; // نظهر الصورة
+            } else {
+                lightboxImg.src = '';
+                lightboxImg.style.display = 'none'; // نخفي مكان الصورة خالص
+            }
+
+            // نحط الكلام
+            lightboxText.innerHTML = captionText;
+
+            // نظهر الشاشة
+            lightbox.style.display = 'flex';
+
+            // حركة أنيميشن
+            setTimeout(() => {
+                lightbox.style.opacity = '1';
+                lightbox.querySelector('.lightbox-content').style.transform = 'scale(1)';
+            }, 10);
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox-overlay');
+
+            // نقفل الأنيميشن الأول بتاع الشاشة
+            lightbox.style.opacity = '0';
+            lightbox.querySelector('.lightbox-content').style.transform = 'scale(0.7)';
+
+            // نستنى الأنيميشن يخلص بعدين نخفيها خالص
+            setTimeout(() => {
+                lightbox.style.display = 'none';
+            }, 400);
+
+            // --- إضافة البوسة المتحركة (الدلع كله هنا) ---
+            const kiss = document.createElement('div');
+            kiss.innerHTML = '💋'; // تقدر تغيره لـ 💋 لو حابب
+
+            // تنسيق البوسة عشان تطلع في نص الشاشة
+            kiss.style.position = 'fixed';
+            kiss.style.top = '50%';
+            kiss.style.left = '50%';
+            kiss.style.transform = 'translate(-50%, -50%) scale(0.5)';
+            kiss.style.fontSize = '80px';
+            kiss.style.zIndex = '9999';
+            kiss.style.pointerEvents = 'none';
+            kiss.style.transition = 'all 1s ease-out'; // سرعة النعومة
+            kiss.style.opacity = '1';
+
+            document.body.appendChild(kiss);
+
+            // نشغل الأنيميشن (تكبر وتطير لفوق وتختفي)
+            setTimeout(() => {
+                kiss.style.transform = 'translate(-50%, -150px) scale(2)';
+                kiss.style.opacity = '0';
+            }, 50);
+
+            // نمسحها من الكود خالص بعد ما الأنيميشن يخلص عشان متتقلش الصفحة
+            setTimeout(() => {
+                kiss.remove();
+            }, 1050);
+        }
+        // ================= برمجة شاشة السلايدر (تقليب الاسكرينات) =================
+
+        // 1. قايمة اسكرينات المكالمات
+        const callsImages = [
+            { src: 'photo/screen_shots_call/Screenshot_٢٠٢٦٠٣١٨_٠٨٤٧١٨_Call.jpg', caption: '' },
+            { src: 'photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٢٠_٢١٥٤٣٩_Call.jpg', caption: '' },
+            { src: 'photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٢١_٢٣١٨١٩_Call.jpg', caption: '' },
+            { src: 'photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٢٤_٢٢١٣٢٩_Call.jpg', caption: '' },
+            { src: 'photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٢٥_٢١٤٥٣٣_Call.jpg', caption: '' },
+            { src: 'photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٢٥_٢١٤٥٣٥_Call.jpg', caption: '' },
+            { src: 'photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٢٧_١٩١٨١٨_Call.jpg', caption: '' },
+            { src: 'photo/screen_shots_call/Screenshot_٢٠٢٦٠٥٣٠_٢١٤٤٥٩_Call.jpg', caption: '' }
+        ];
+
+        // 2. قايمة اسكرينات وصور الواتس (تقدر تزود صور هنا براحتك زي ما اتعلمنا)
+        const whatsappImages = [
+            { src: 'photo/screen_shots_watsaap/IMG-20260526-WA0025.jpeg', caption: '' },
+            { src: 'photo/screen_shots_watsaap/IMG-20260526-WA0067.jpeg', caption: '' },
+            { src: 'photo/screen_shots_watsaap/IMG-20260526-WA0068.jpg', caption: '' },
+            { src: 'photo/screen_shots_watsaap/IMG-20260527-WA0109.jpeg', caption: '' },
+            { src: 'photo/screen_shots_watsaap/IMG-20260604-WA0025.jpeg', caption: '' },
+            { src: 'photo/screen_shots_watsaap/IMG-20260611-WA0006.jpg', caption: '' },
+            { src: 'photo/screen_shots_watsaap/Screenshot_٢٠٢٥١٠١٥_١٩٤٥٥٢_WhatsApp.jpg', caption: '' },
+            { src: 'photo/screen_shots_watsaap/Screenshot_٢٠٢٥١١١٧_١٠١٤٥٥_Telegram.jpg', caption: '' },
+            { src: 'photo/screen_shots_watsaap/Screenshot_٢٠٢٦٠٤٠١_١١١٩٤٧_WhatsApp.jpg', caption: '' },
+            { src: 'photo/screen_shots_watsaap/Screenshot_٢٠٢٦٠٥١٨_٢١٤٤٥٧_Google.png', caption: '' },
+            { src: 'photo/screen_shots_watsaap/Screenshot_٢٠٢٦٠٥٢٩_٢١٥٥١٠_Google.png', caption: '' },
+            { src: 'photo/screen_shots_watsaap/Screenshot_٢٠٢٦٠٦٠٢_١٩٥٨٢٤_WhatsApp.jpg', caption: '' },
+            { src: 'photo/screen_shots_watsaap/Screenshot_٢٠٢٦٠٦١٠_٢٢٥٧٠٣_WhatsApp.jpg', caption: '' }
+        ];
+
+        let activeSliderImages = []; // دي اللي هتحدد هنعرض انهي قايمة
+        let currentSlideIndex = 0;
+
+        function openScreenshotsSlider(type) {
+            // نحدد القايمة بناءً على الزرار اللي انداس
+            if (type === 'calls') {
+                activeSliderImages = callsImages;
+            } else if (type === 'whatsapp') {
+                activeSliderImages = whatsappImages;
+            }
+
+            if (activeSliderImages.length === 0) return;
+
+            currentSlideIndex = 0;
+            updateSlider();
+            document.getElementById('screenshots-slider-overlay').style.display = 'flex';
+        }
+
+        function closeScreenshotsSlider() {
+            document.getElementById('screenshots-slider-overlay').style.display = 'none';
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+
+            if (currentSlideIndex >= activeSliderImages.length) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex < 0) {
+                currentSlideIndex = activeSliderImages.length - 1;
+            }
+
+            updateSlider();
+        }
+
+        function updateSlider() {
+            const imgElement = document.getElementById('slider-main-img');
+            const textElement = document.getElementById('slider-text');
+            const counterElement = document.getElementById('slider-counter');
+
+            imgElement.src = activeSliderImages[currentSlideIndex].src;
+            textElement.innerText = activeSliderImages[currentSlideIndex].caption;
+            counterElement.innerText = `صورة ${currentSlideIndex + 1} من ${activeSliderImages.length}`;
+        }
+
+        // ================= برمجة المفاجأة (الخمس نجوم) وأرشيف أعياد الميلاد =================
+
+        let collectedStars = 0;
+        let blownCandlesCount = 0;
+        const totalStarsNeeded = 5;
+        const balloonColors = ['#ff4d6d', '#ffb3c1', '#ffd700', '#d81b60', '#ff8fa3'];
+        let balloonInterval;
+
+        function startBalloonGame() {
+            // التعديل هنا: نخفي صفحة الكروت عشان متبانش ورا البلالين
+            document.getElementById('main-hub').style.display = 'none';
+
+            // تصفير وتجهيز الشاشة
+            document.getElementById('balloons-room').style.display = 'flex';
+            // ... باقي الكود زي ما هو ...
+            // تصفير وتجهيز الشاشة
+            document.getElementById('balloons-room').style.display = 'flex';
+            document.getElementById('balloon-instruction').style.display = 'block';
+            document.getElementById('surprise-gift-box').style.display = 'none';
+            document.getElementById('cinematic-overlay').style.display = 'none';
+            document.getElementById('glowing-message').style.display = 'none';
+            document.getElementById('interactive-cake-container').style.display = 'none';
+
+            // السطر ده عشان نرجع نظهر النجوم لو دخلت اللعبة تاني
+            document.getElementById('stars-bar').style.display = 'flex';
+
+            document.getElementById('flame-2').classList.remove('flame-out');
+            document.getElementById('flame-1').classList.remove('flame-out');
+
+            collectedStars = 0;
+            blownCandlesCount = 0;
+
+            // نطفي النجوم اللي فوق
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById('star-' + i).classList.remove('lit');
+            }
+
+            // نمسح أي بلالين قديمة لو اللعبة اتفتحت تاني
+            const room = document.getElementById('balloons-room');
+            room.querySelectorAll('.balloon').forEach(b => b.remove());
+
+            // نطلع بلالين باستمرار لحد ما نجمع الـ 5 نجوم
+            balloonInterval = setInterval(() => {
+                if (collectedStars < totalStarsNeeded) {
+                    createBalloon();
+                } else {
+                    clearInterval(balloonInterval);
+                }
+            }, 800);
+        }
+
+        function createBalloon() {
+            const balloon = document.createElement('div');
+            balloon.className = 'balloon';
+
+            const color = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+            balloon.style.backgroundColor = color;
+            balloon.style.left = Math.floor(Math.random() * 80 + 10) + '%';
+
+            balloon.style.animationDuration = (Math.random() * 4 + 6) + 's'; // سرعة متوسطة عشان تلحقها
+
+            balloon.onclick = function (e) {
+                popBalloon(balloon, e.clientX, e.clientY);
+            };
+
+            document.getElementById('balloons-room').appendChild(balloon);
+
+            // نمسح البلونة لو عدت الشاشة ومحدش داس عليها
+            setTimeout(() => {
+                if (balloon.parentNode) balloon.remove();
+            }, 10000);
+        }
+
+        function popBalloon(balloon, x, y) {
+            // تأثير فرقعة سريع
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 15,
+                    spread: 40,
+                    origin: { x: x / window.innerWidth, y: y / window.innerHeight },
+                    colors: balloonColors
+                });
+            }
+
+            balloon.classList.add('pop-effect');
+            setTimeout(() => balloon.remove(), 150);
+
+            // نبعت نجمة طايرة للشريط اللي فوق
+            if (collectedStars < totalStarsNeeded) {
+                collectedStars++;
+                flyStarToSlot(x, y, collectedStars);
+            }
+        }
+
+        function flyStarToSlot(startX, startY, starNumber) {
+            // إنشاء النجمة الطايرة
+            const flyingStar = document.createElement('div');
+            flyingStar.className = 'flying-star';
+            flyingStar.innerText = '⭐';
+            flyingStar.style.left = startX + 'px';
+            flyingStar.style.top = startY + 'px';
+            document.getElementById('balloons-room').appendChild(flyingStar);
+
+            // نحسب مكان النجمة الفاضية اللي عليها الدور فوق
+            const targetSlot = document.getElementById('star-' + starNumber);
+            const rect = targetSlot.getBoundingClientRect();
+
+            // نحركها لمكانها
+            setTimeout(() => {
+                flyingStar.style.left = rect.left + 'px';
+                flyingStar.style.top = rect.top + 'px';
+                flyingStar.style.transform = 'scale(0.5)';
+            }, 50);
+
+            // لما توصل تنور النجمة اللي فوق وتختفي
+            setTimeout(() => {
+                flyingStar.remove();
+                targetSlot.classList.add('lit');
+
+                if (collectedStars === totalStarsNeeded) {
+                    triggerFiveStarFinale();
+                }
+            }, 1050);
+        }
+
+        function triggerFiveStarFinale() {
+            document.getElementById('balloon-instruction').style.display = 'none';
+
+            // نمسح أي بلالين باقية ونوقف العداد
+            document.querySelectorAll('.balloon').forEach(b => b.remove());
+            clearInterval(balloonInterval);
+
+            // نخفي شريط النجوم عشان نفضي الشاشة
+            document.getElementById('stars-bar').style.display = 'none';
+
+            // نظهر صندوق الهدية اللي بيترج في النص
+            document.getElementById('surprise-gift-box').style.display = 'flex';
+        }
+
+        // ==========================================
+        // دالة الأكشن لما تدوس على صندوق الهدية
+        function openSurpriseBox() {
+            // 1. نخفي الصندوق
+            document.getElementById('surprise-gift-box').style.display = 'none';
+
+            // 2. نجيب التعتيم السينمائي والرسالة المنورة
+            const overlay = document.getElementById('cinematic-overlay');
+            const message = document.getElementById('glowing-message');
+
+            overlay.style.display = 'block';
+            message.style.display = 'block';
+
+            // 3. نشغل تأثير الظهور الناعم (Fade in)
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+                message.style.opacity = '1';
+            }, 50);
+
+            // 4. نسيبها 4.5 ثواني تقرأها وتستمتع باللحظة
+            setTimeout(() => {
+                // تأثير الاختفاء الناعم
+                overlay.style.opacity = '0';
+                message.style.opacity = '0';
+
+                // 5. بعد ما يختفوا تماماً (بياخدوا ثانية ونص)، نظهر التورتة
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    message.style.display = 'none';
+
+                    document.getElementById('interactive-cake-container').style.display = 'flex';
+
+                    // السطر الجديد اللي هيشغل صوت محمد سعد
+                    document.getElementById('saad-sound').play();
+
+                }, 1500);
+
+            }, 4500);
+        }
+
+        // 1. دالة الشمع (بتسلم لكارت عيد الميلاد في الآخر)
+        function blowSingleCandle(candleNum) {
+            const flame = document.getElementById('flame-' + candleNum);
+            if (flame.classList.contains('magical-spark')) return;
+
+            const rect = flame.getBoundingClientRect();
+            flame.style.transition = 'none';
+            flame.style.position = 'fixed';
+            flame.style.top = rect.top + 'px';
+            flame.style.left = rect.left + 'px';
+            flame.style.transform = 'none';
+            flame.style.zIndex = '3000';
+            flame.classList.add('magical-spark');
+
+            blownCandlesCount++;
+
+            setTimeout(() => {
+                if (blownCandlesCount === 1) {
+                    flame.style.transition = 'all 3s cubic-bezier(0.16, 1, 0.3, 1)';
+                    flame.style.top = '20%';
+                    flame.style.left = '45%';
+
+                    setTimeout(() => {
+                        flame.style.transition = 'all 4s ease-in-out';
+                        flame.wanderInterval = setInterval(() => {
+                            const randomTop = Math.floor(Math.random() * 35 + 15) + '%';
+                            const randomLeft = Math.floor(Math.random() * 50 + 25) + '%';
+                            flame.style.top = randomTop;
+                            flame.style.left = randomLeft;
+                        }, 4000);
+                    }, 3000);
+
+                } else if (blownCandlesCount === 2) {
+                    const flame1 = document.getElementById('flame-1');
+                    const flame2 = document.getElementById('flame-2');
+
+                    if (flame1.wanderInterval) clearInterval(flame1.wanderInterval);
+
+                    flame1.style.transition = 'all 2s cubic-bezier(0.16, 1, 0.3, 1)';
+                    flame2.style.transition = 'all 2s cubic-bezier(0.16, 1, 0.3, 1)';
+
+                    flame1.style.top = '50%';
+                    flame1.style.left = '50%';
+                    flame1.style.transform = 'translate(-50%, -50%) scale(1.5)';
+
+                    flame2.style.top = '50%';
+                    flame2.style.left = '50%';
+                    flame2.style.transform = 'translate(-50%, -50%) scale(1.5)';
+
+                    setTimeout(() => {
+                        if (typeof confetti === 'function') {
+                            confetti({ particleCount: 60, spread: 80, colors: ['#ffffff', '#ffed4a', '#ff9d00'], origin: { y: 0.5, x: 0.5 } });
+                        }
+
+                        flame1.style.display = 'none';
+                        flame2.style.display = 'none';
+                        document.getElementById('interactive-cake-container').style.display = 'none';
+
+                        // التعديل هنا: إيقاف الصوت وتصفيره أول ما التورتة تختفي
+                        const saadAudio = document.getElementById('saad-sound');
+                        if (saadAudio) {
+                            saadAudio.pause();
+                            saadAudio.currentTime = 0; // بيرجع الصوت لنقطة الصفر
+                        }
+
+                        // إظهار مسرح الكارت الـ 3D والظرف
+                        document.getElementById('birthday-card-container').style.display = 'flex';
+                    }, 2000);
+                }
+            }, 50);
+        }
+
+        // ==========================================
+        // 2. دالة فتح الظرف وتثبيته والصواريخ
+        function openEnvelope() {
+            const envelope = document.getElementById('the-interactive-envelope');
+
+            // لو اتفتح قبل كده ميعملش حاجة عشان الأكشن ميتكررش
+            if (envelope.classList.contains('is-opened')) return;
+            envelope.classList.add('is-opened');
+
+            // 1. نثبت الأشكال مفتوحة بالجافاسكريبت غصب عنها عشان لو شالت إيدها ميقفلش
+            envelope.querySelector('.envelope-letter').style.transform = 'translateY(-70px)';
+            envelope.querySelector('.envelope-seal').style.opacity = '0';
+            envelope.querySelector('.envelope-seal').style.transform = 'scale(0) rotate(180deg)';
+            envelope.querySelector('.top-flap').style.clipPath = 'polygon(50% 0%, 100% 0, 0 0)';
+
+            // نمنع أي تفاعل تاني مع الظرف (عشان الماوس ميبوظش التثبيت)
+            envelope.style.pointerEvents = 'none';
+
+            // 2. بعد ما الظرف يفتح (نستنى 600 ملي ثانية) نضرب الصواريخ
+            setTimeout(() => {
+                var duration = 3000;
+                var animationEnd = Date.now() + duration;
+                var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3000 };
+
+                function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+                var interval = setInterval(function () {
+                    var timeLeft = animationEnd - Date.now();
+                    if (timeLeft <= 0) { return clearInterval(interval); }
+                    var particleCount = 50 * (timeLeft / duration);
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+                }, 250);
+
+                // 3. بعد ما الصواريخ تخلص، البوسة والأرشيف
+                setTimeout(() => {
+                    // نخفي الظرف بنعومة
+                    envelope.style.transition = 'opacity 0.5s';
+                    envelope.style.opacity = '0';
+
+                    setTimeout(() => {
+                        // ننشئ البوسة في نص الشاشة
+                        const kiss = document.createElement('div');
+                        kiss.innerText = '💋';
+                        kiss.style.position = 'fixed';
+                        kiss.style.top = '50%';
+                        kiss.style.left = '50%';
+                        kiss.style.transform = 'translate(-50%, -50%) scale(0)';
+                        kiss.style.fontSize = '8rem';
+                        kiss.style.zIndex = '4000';
+                        kiss.style.transition = 'all 1.5s ease-in-out';
+                        document.body.appendChild(kiss);
+
+                        // نكبرها وتختفي
+                        setTimeout(() => {
+                            kiss.style.transform = 'translate(-50%, -50%) scale(2.5)';
+                            kiss.style.opacity = '0';
+                        }, 50);
+
+                        // نقفل أوضة البلالين وننقلها لصفحة الأرشيف
+                        setTimeout(() => {
+                            kiss.remove();
+                            document.getElementById('balloons-room').style.display = 'none';
+                            document.getElementById('birthday-archive').style.display = 'flex';
+                        }, 1500);
+
+                    }, 500);
+
+                }, 4000);
+            }, 600);
+        }
+        function closeBirthdayArchive() {
+            document.getElementById('birthday-archive').style.display = 'none';
+            // التعديل هنا: نرجع نظهر صفحة الكروت تاني
+            document.getElementById('main-hub').style.display = 'flex';
+        }
+
+        // متغيرات التلفزيون (للتتر السينمائي)
+        let isTvOn = false;
+
+        // ================= رسايل أعياد الميلاد =================
+        const message2025 = `مين الحلو اللي كبر سنة 🥳🥳<br><br>
+        أحلى كل سنة وأنتي طيبة يا أحلى نونة في الدنيا<br><br>
+        النهاردة يوم مميز غير أي يوم، النهاردة عيد ميلاد أختي وصحبتي من الآخر نونتي<br><br>
+        كل سنة وأنتي طيبة، كل سنة والضحكة مرسومة على وشك متفارقكيش<br><br>
+        كل سنة وقلبك أبيض زي ما هوا، كل سنة وأنتي وسط أهلك وناسك وأصحابك<br><br>
+        كل سنة وأنتي منورة حياتي، كل سنة ويومي ميكملش غير بيكي أنونتي<br><br>
+        كل سنة وأنتي مبسوطة وفرحانة وتبقى سنة سعيدة عليكي يارب وتحققي كل اللي بتتمنيه<br><br>
+        ومع بداية سنة جديدة في حياتك أحب أقول يارب أسعدها في أبسط تفاصيل حياتها وقرب ليها الخير وأبعد عنها الشر<br><br>
+        اللهم أغرق قلبها فرحاً وسعادة وبحراً من الرضا والتيسير وكن لها الأمان والطمأنينة في عامها الجديد، اللهم اجعله عام خير لها وحقق لها ما تتمنى<br><br>
+        وفي الآخر أحب أقولك كل سنة وأنتي معايا وربنا يخليكي ليا وميحرمنيش منك أبداً أنونتي ❤️`;
+
+        const message2026 = `يا عينى على القمر اللي كبر وبقى 21 سنة 🥳🥳<br><br>
+        أحلى وأجمل عيد ميلاد لأغلى واحدة في دنيتي<br><br>
+        اليوم ده مش تاريخ بيعدي كدا وخلاص ده العيد بتاع أختي وصاحبة عمري وسندي نونتي اللي مفيش في حلاوتها اتنين<br><br>
+        كل سنة وأنتي بتحلوي أكتر كل سنة والضحكة اللي بتخطف قلبي دي منورة وشك دايما يارب كل سنة وانتى اطيب واحن واحدة فى الدنيا كلها  كل سنة وأنتي الروح اللي بتدي طعم لايامى كل سنة وأنتي أهم حد في يومي ومقدرش أستغنى عنك وكل سنة وأنتي ناجحة ومبسوطة كدا يارب ويارب السنادى تكون سنة حلوة وسعيدة عليكى وتحققى كل الى بتحلمى بيه يارب<br><br>
+        ومع بداية السنة الجديد دى بدعي ربنا من قلبي يكتبلك الخير في كل خطوة ويبعد عنك أي حاجة تزعلك أو تضايقك يارب اللهم اجعله عام خير لها وحقق لها ما تتمنى اللهم أغرق قلبها فرحاً وسعادة وبحراً من الرضا والتيسير وكن لها الأمان والطمأنينة في عامها الجديد.<br><br>
+        وفي الآخر مهما كبرتي هتفضلي دايماً البيبى بتاعتى الى ماليش بيبى غيرها كل سنة وأنتي معايا وفي ضهري ربنا يديمك نعمة في حياتي وميحرمنيش من وجودك أبداً يا أحلى نونة ❤️`;
+
+        // دالة فتح صفحة التلفزيون وحقن الرسالة
+        function openBirthdayYear(year) {
+            document.getElementById('birthday-archive').style.display = 'none';
+            document.getElementById('tv-birthday-page').style.display = 'flex';
+
+            const scrollingText = document.getElementById('scrolling-text');
+
+            // حقن الرسالة المناسبة حسب السنة
+            if (year === 2025) {
+                scrollingText.innerHTML = message2025;
+            } else if (year === 2026) {
+                scrollingText.innerHTML = message2026;
+            }
+
+            // التلفزيون يبدأ مطفي دايماً والتتر راجع لنقطة الصفر
+            isTvOn = false;
+            isPlaying = false;
+            document.getElementById('main-channel').style.display = 'none';
+            document.getElementById('tv-noise').style.display = 'none';
+
+            currentY = 80;
+            scrollingText.style.transform = `translateY(${currentY}px)`;
+            cancelAnimationFrame(scrollAnimation);
+        }
+
+        // دالة الرجوع للأرشيف وقفل التلفزيون
+        function closeTvPage() {
+            document.getElementById('tv-birthday-page').style.display = 'none';
+            document.getElementById('birthday-archive').style.display = 'flex';
+
+            // نتأكد إن التلفزيون بيقفل تماماً لو كانت سابته شغال
+            isTvOn = false;
+            isPlaying = false;
+            cancelAnimationFrame(scrollAnimation);
+            document.getElementById('main-channel').style.display = 'none';
+            const led = document.getElementById('remote-led');
+            led.classList.remove('active');
+        }
+
+        // ==========================================
+        // برمجة زراير الريموت وتتر السينما
+
+        let isPlaying = false;
+        let currentY = 80; // الكلام هيبدأ من تحت الشاشة بمسافة 250 بيكسل
+        let scrollAnimation;
+
+        // موتور الحركة الجديد (بديل الـ CSS)
+        function autoScroll() {
+            if (isPlaying && isTvOn) {
+                currentY -= 0.2; // سرعة التتر (تقدر تكبر الرقم لو عايزه أسرع)
+                document.getElementById('scrolling-text').style.transform = `translateY(${currentY}px)`;
+            }
+            scrollAnimation = requestAnimationFrame(autoScroll);
+        }
+
+        function flashLed() {
+            const led = document.getElementById('remote-led');
+            led.classList.add('active');
+            setTimeout(() => led.classList.remove('active'), 200);
+        }
+
+        // 1. زرار الباور (تشغيل / إيقاف)
+        document.getElementById('btn-power').addEventListener('click', function () {
+            flashLed();
+            const noise = document.getElementById('tv-noise');
+            const mainChannel = document.getElementById('main-channel');
+            const scrollingText = document.getElementById('scrolling-text');
+
+            if (!isTvOn) {
+                // نفتح التلفزيون
+                isTvOn = true;
+                noise.style.display = 'block';
+
+                // ريستارت التتر عشان يبدأ من تحت
+                currentY = 80;
+                scrollingText.style.transform = `translateY(${currentY}px)`;
+
+                setTimeout(() => {
+                    noise.style.display = 'none';
+                    mainChannel.style.display = 'block';
+                    isPlaying = true; // ندي أمر التشغيل
+                    cancelAnimationFrame(scrollAnimation); // نلغي أي حركة قديمة
+                    autoScroll(); // ندور الموتور
+                }, 600);
+            } else {
+                // نقفل التلفزيون
+                isTvOn = false;
+                isPlaying = false;
+                noise.style.display = 'block';
+                setTimeout(() => {
+                    noise.style.display = 'none';
+                    mainChannel.style.display = 'none';
+                    cancelAnimationFrame(scrollAnimation); // نوقف الموتور
+                }, 300);
+            }
+        });
+
+        // 2. زرار التشغيل والإيقاف المدمج ⏯️
+        document.getElementById('btn-play-pause').addEventListener('click', function () {
+            flashLed();
+            if (isTvOn) {
+                isPlaying = !isPlaying; // لو شغال يقف، ولو واقف يشتغل
+            }
+        });
+
+        // 3. زرار التقديم ⏩ (بيطلع الكلام لفوق 40 بيكسل)
+        document.getElementById('btn-forward').addEventListener('click', function () {
+            flashLed();
+            if (isTvOn) {
+                currentY -= 40; // ينط لفوق
+                document.getElementById('scrolling-text').style.transform = `translateY(${currentY}px)`;
+            }
+        });
+
+        // 4. زرار الإرجاع ⏪ (بينزل الكلام لتحت 40 بيكسل)
+        document.getElementById('btn-rewind').addEventListener('click', function () {
+            flashLed();
+            if (isTvOn) {
+                currentY += 40; // ينزل لتحت
+                document.getElementById('scrolling-text').style.transform = `translateY(${currentY}px)`;
+            }
+        });
+
+        // 5. الزرار السري (البوسة 💋)
+        document.getElementById('btn-kiss').addEventListener('click', function () {
+            flashLed();
+
+            const kiss = document.createElement('div');
+            kiss.innerText = '💋';
+            kiss.style.position = 'fixed';
+            kiss.style.top = '50%';
+            kiss.style.left = '50%';
+            kiss.style.transform = 'translate(-50%, -50%) scale(0)';
+            kiss.style.fontSize = '8rem';
+            kiss.style.zIndex = '5000';
+            kiss.style.transition = 'all 1.5s ease-in-out';
+            document.body.appendChild(kiss);
+
+            setTimeout(() => {
+                kiss.style.transform = 'translate(-50%, -50%) scale(3)';
+                kiss.style.opacity = '0';
+            }, 50);
+
+            setTimeout(() => kiss.remove(), 1500);
+        });
+    </script>
+</body>
+
+</html>
